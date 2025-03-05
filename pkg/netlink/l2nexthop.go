@@ -61,8 +61,14 @@ const (
 func (l2n *L2NexthopStruct) ParseL2NH(vlanID int, dev string, dst string, lb *infradb.LogicalBridge, bp *infradb.BridgePort) {
 	l2n.Dev = dev
 	l2n.VlanID = vlanID
-	l2n.Dst = net.IP(dst)
-	l2n.Key = L2NexthopKey{l2n.Dev, l2n.VlanID, string(l2n.Dst)}
+	if dst != "" {
+		nIP := &net.IPNet{
+			IP: net.ParseIP(dst),
+		}
+		l2n.Dst = nIP.IP
+	}
+	keyDst := fmt.Sprintf("%s", l2n.Dst) // verify once
+	l2n.Key = L2NexthopKey{l2n.Dev, l2n.VlanID, keyDst}
 	l2n.lb = lb
 	l2n.bp = bp
 	l2n.Resolved = true
@@ -112,18 +118,23 @@ func (l2n *L2NexthopStruct) annotate() {
 	if lb != nil {
 		if l2n.Type == SVI {
 			l2n.Metadata["vrf_id"] = *lb.Spec.Vni
+
+			svi, _ := infradb.GetSvi(lb.Svi)
+			vrf, _ := infradb.GetVrf(svi.Spec.Vrf)
+			//l2n.Metadata["vrf_id"] = *lb.Spec.Vni
+			l2n.Metadata["vrf_id"] = *vrf.Spec.Vni
 		} else if l2n.Type == VXLAN {
 			//# Remote EVPN MAC address learned on the VXLAN interface
 			//# The L2 nexthop must have a destination IP address in dst
 			l2n.Resolved = false
-			l2n.Metadata["local_vtep_ip"] = *lb.Spec.VtepIP
-			l2n.Metadata["remote_vtep_ip"] = l2n.Dst
+			l2n.Metadata["local_vtep_ip"] = lb.Spec.VtepIP.IP.String()
+			l2n.Metadata["remote_vtep_ip"] = l2n.Dst.String()
 			l2n.Metadata["vni"] = *lb.Spec.Vni
 			//# The below physical nexthops are needed to transmit the VXLAN-encapsuleted packets
 			//# directly from the nexthop table to a physical port (and avoid another recirculation
 			//# for route lookup in the GRD table.)
 			vrf, _ := infradb.GetVrf("//network.opiproject.org/vrfs/GRD")
-			r, ok := lookupRoute(l2n.Dst, vrf)
+			r, ok := lookupRoute(l2n.Dst, vrf, false)
 			if ok {
 				//  # For now pick the first physical nexthop (no ECMP yet)
 				phyNh := r.Nexthops[0]
@@ -174,21 +185,18 @@ func (l2n *L2NexthopStruct) deepEqual(l2nOld *L2NexthopStruct, nc bool) bool {
 // dumpL2NexthDB dump the l2 nexthop entries
 func dumpL2NexthDB() string {
 	var s string
-	log.Printf("netlink: Dump L2 Nexthop table:\n")
 	s = "L2 Nexthop table:\n"
 	var ip string
-	for _, n := range latestL2Nexthop {
+	for _, n := range l2Nexthops {
 		if n.Dst == nil {
 			ip = strNone
 		} else {
 			ip = n.Dst.String()
 		}
 		str := fmt.Sprintf("L2Nexthop(id=%d dev=%s vlan=%d dst=%s type=%d #fDB entries=%d Resolved=%t) ", n.ID, n.Dev, n.VlanID, ip, n.Type, len(n.FdbRefs), n.Resolved)
-		log.Println(str)
 		s += str
 		s += "\n"
 	}
-	log.Printf("\n\n\n")
 	s += "\n\n"
 	return s
 }
