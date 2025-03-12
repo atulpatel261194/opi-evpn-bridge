@@ -25,6 +25,8 @@ import (
 	"github.com/opiproject/opi-evpn-bridge/pkg/config"
 	"github.com/opiproject/opi-evpn-bridge/pkg/infradb"
 	"github.com/opiproject/opi-evpn-bridge/pkg/infradb/taskmanager"
+	"github.com/opiproject/opi-evpn-bridge/pkg/ipsec"
+	psec "github.com/opiproject/opi-evpn-bridge/pkg/ipsec/gen/go"
 	"github.com/opiproject/opi-evpn-bridge/pkg/port"
 	"github.com/opiproject/opi-evpn-bridge/pkg/svi"
 	"github.com/opiproject/opi-evpn-bridge/pkg/utils"
@@ -227,6 +229,7 @@ func runGrpcServer(grpcPort uint16, tlsFiles string) {
 	portServer := port.NewServer()
 	vrfServer := vrf.NewServer()
 	sviServer := svi.NewServer()
+	ipsecServer := ipsec.NewServer()
 	pe.RegisterLogicalBridgeServiceServer(s, bridgeServer)
 	pe.RegisterBridgePortServiceServer(s, portServer)
 	pe.RegisterVrfServiceServer(s, vrfServer)
