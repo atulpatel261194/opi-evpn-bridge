@@ -555,8 +555,7 @@ func setUpSvi(svi *infradb.Svi) (string, bool) {
 	}
 	linkSvi := fmt.Sprintf("%+v-%+v", path.Base(svi.Spec.Vrf), brObj.Spec.VlanID)
 	if svi.Spec.EnableBgp && len(svi.Spec.GatewayIPs) != 0 {
-		// gwIP := fmt.Sprintf("%s", svi.Spec.GatewayIPs[0].IP.To4())
-		gwIP := string(svi.Spec.GatewayIPs[0].IP.To4())
+		gwIP := fmt.Sprintf("%s", svi.Spec.GatewayIPs[0].IP.To4())
 		remoteAs := fmt.Sprintf("%d", *svi.Spec.RemoteAs)
 		bgpVrfName := fmt.Sprintf("router bgp %+v vrf %s\n", localas, path.Base(svi.Spec.Vrf))
 		neighlink := fmt.Sprintf("neighbor %s peer-group\n", linkSvi)
