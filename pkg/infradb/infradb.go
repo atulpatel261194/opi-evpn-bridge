@@ -2100,10 +2100,10 @@ func updateTunRep(tunRep *TunRep) error {
 	tunRep.OldVersions = append(tunRep.OldVersions, oldVersionName)
 
 	// Remove the old SA name from the old tunRep so nobody can use it accidentally
-        // Dimitris: Currently we can not follow this approach as the odlTunRep SA is needed
-        // for further processing in the netlinkWatcher module. We need to revisit this topic
-        // in the future. For now is just ok to comment out this code but keep it as a record.
-        // oldTunRep.Spec.Sa = ""
+	// Dimitris: Currently we can not follow this approach as the odlTunRep SA is needed
+	// for further processing in the netlinkWatcher module. We need to revisit this topic
+	// in the future. For now is just ok to comment out this code but keep it as a record.
+	// oldTunRep.Spec.Sa = ""
 	// Change the name of the old version in order to save it in the DB with a different name.
 	oldTunRep.Name = oldVersionName
 	// Save the old version to the DB with the new Name

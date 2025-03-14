@@ -93,19 +93,23 @@ func (s *Server) GetFeatures(_ context.Context, in *pb.Features) (*pb.Features, 
 	return &pb.Features{Features: uint32(features)}, nil
 }
 
-// GetSpi returns a spi
+// GetSPI returns a spi
 func (s *Server) GetSPI(_ context.Context, in *pb.GetSPIReq) (*pb.GetSPIResp, error) {
-	// Dimitris:  Replace the implementation here with an IDPool ?
-	//			  Are we able to do so? The idpool.GetId(key) needs
-	//	          a "key" to associate with the "id" that will be returned.
-	//	          What will be the "key" that will be used in the Spi case?
-	//            Are the "src" and "dst" of GetSPIReq params different every time
-	//            so we can use them in order to generate a unique "key" out of those
-	//            and use that "key" for the idPool ?
-	//            Is it ok to generate an arbitrary "key" (e.g. UUID) ?
+	// Dimitris: Replace the implementation here with an IDPool ?
+	// Are we able to do so? The idpool.GetId(key) needs a "key"
+	// to associate with the "id" that will be returned. What will
+	// be the "key" that will be used in the Spi case? Are the "src"
+	// and "dst" of GetSPIReq params different every time so we can
+	// use them in order to generate a unique "key" out of those and
+	// use that "key" for the idPool ? Is it ok to generate an arbitrary
+	// "key" (e.g. UUID) ?
 	log.Printf("GetSpi(): Received request %+v", in)
 	min := 256
 	max := math.MaxUint32
+	// Dimitris: We use "nolint" here as golang suggests to use crypto/rand instead
+	// of math/rand. It is an overkill to use crypto/rand here as the SPI is not
+	// used as a key for encryption but it is just an identifier.
+	//nolint:gosec
 	spi := (rand.Intn(max - min)) + min
 	return &pb.GetSPIResp{Stat: 0, Spi: uint32(spi)}, nil
 }

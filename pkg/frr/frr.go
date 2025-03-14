@@ -555,6 +555,10 @@ func setUpSvi(svi *infradb.Svi) (string, bool) {
 	}
 	linkSvi := fmt.Sprintf("%+v-%+v", path.Base(svi.Spec.Vrf), brObj.Spec.VlanID)
 	if svi.Spec.EnableBgp && len(svi.Spec.GatewayIPs) != 0 {
+		// Venkatesh: We use "nolint" here as gosimple suggests to use String() instead of Sprintf().
+		// This is not possible as with String() some garbage is getting picked up and the code is
+		// not functioning properly.
+		//nolint:gosimple
 		gwIP := fmt.Sprintf("%s", svi.Spec.GatewayIPs[0].IP.To4())
 		remoteAs := fmt.Sprintf("%d", *svi.Spec.RemoteAs)
 		bgpVrfName := fmt.Sprintf("router bgp %+v vrf %s\n", localas, path.Base(svi.Spec.Vrf))

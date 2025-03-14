@@ -23,7 +23,7 @@ var saIdxPoolRange = struct {
 	saIdxPoolMax: 4000,
 }
 
-var saIdxPool,_ = utils.IDPoolInit("SaIdxPool", saIdxPoolRange.saIdxPoolMin, saIdxPoolRange.saIdxPoolMax)
+var saIdxPool, _ = utils.IDPoolInit("SaIdxPool", saIdxPoolRange.saIdxPoolMin, saIdxPoolRange.saIdxPoolMax)
 
 // SaOperStatus operational Status for Sas
 type SaOperStatus int32
