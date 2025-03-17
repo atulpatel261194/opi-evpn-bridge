@@ -472,14 +472,14 @@ func CheckRdup(tmpKey RouteKey) bool {
 // annotate function annonates the entries
 func (route *RouteStruct) annotate() {
 	route.Metadata = make(map[interface{}]interface{})
-	if route.Vrf.Spec.Vni != nil {
+	if path.Base(route.Vrf.Name) != "GRD" { // GRD
 		route.Metadata["vrf_id"] = *route.Vrf.Spec.Vni
 	} else {
 		route.Metadata["vrf_id"] = 0
 	}
 	if len(route.Nexthops) != 0 {
 		nexthop := route.Nexthops[0]
-		if route.Vrf.Spec.Vni == nil { // GRD
+		if path.Base(route.Vrf.Name) == "GRD" { // GRD
 			switch nexthop.NhType {
 
 			case PHY, TUN:
