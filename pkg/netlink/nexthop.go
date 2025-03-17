@@ -591,7 +591,7 @@ func (nexthop *NexthopStruct) annotate() {
 		nexthop.Metadata["direction"] = RX
 		nexthop.Metadata["dmac"] = link1.Attrs().HardwareAddr.String()
 		nexthop.Metadata["egress_vport"] = (int((link1.Attrs().HardwareAddr)[0]) << 8) + int((link1.Attrs().HardwareAddr)[1])
-		if nexthop.Vrf.Spec.Vni == nil {
+		if path.Base(nexthop.Vrf.Name) == "GRD" {
 			nexthop.Metadata["vlanID"] = uint32(4089)
 		} else {
 			nexthop.Metadata["vlanID"] = *nexthop.Vrf.Metadata.RoutingTable[0]
